@@ -91,7 +91,12 @@ elif menu_choice == "View Summary":
     if not filtered_meals:
         st.info("No meals found.")
     else:
-        # Convert to DataFrame for display (sortable)
+        # Download button for all meals
+        if st.button("Download Meals as JSON"):
+            json_data = json.dumps(st.session_state.meals)
+            st.download_button("Download JSON", json_data, "meals.json", "application/json")
+        
+        # Sort and display
         df = pd.DataFrame(filtered_meals)
         df = df.sort_values(by=['date', 'time'])  # Sort by date and time
         st.dataframe(df, use_container_width=True)
