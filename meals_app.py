@@ -8,9 +8,16 @@ import streamlit_authenticator as stauth
 # --- Load configuration from Streamlit secrets ---
 try:
     config = st.secrets
+    # Copy to a mutable dict
+    config = {
+        "credentials": dict(config["credentials"]),
+        "cookie": dict(config["cookie"]),
+        "preauthorized": list(config.get("preauthorized", []))
+    }
 except Exception as e:
     st.error(f"Failed to load configuration from secrets: {e}")
     st.stop()
+
 
 # --- Initialize authenticator ---
 authenticator = stauth.Authenticate(
