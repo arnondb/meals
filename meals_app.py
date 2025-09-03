@@ -7,16 +7,21 @@ import streamlit_authenticator as stauth
 
 # --- Load configuration safely from Streamlit secrets ---
 try:
-    # Only copy the nested dictionaries/lists needed, making them mutable
+    # Create fully mutable copies
+    credentials = {k: dict(v) for k, v in st.secrets["credentials"]["usernames"].items()}
+    cookie = dict(st.secrets["cookie"])
+    preauthorized = list(st.secrets.get("preauthorized", []))
+    
     config = {
-        "credentials": dict(st.secrets["credentials"]),
-        "cookie": dict(st.secrets["cookie"]),
-        "preauthorized": list(st.secrets.get("preauthorized", []))
+        "credentials": {"usernames": credentials},
+        "cookie": cookie,
+        "preauthorized": preauthorized,
     }
+
 except Exception as e:
     st.error(f"Failed to load configuration from secrets: {e}")
     st.stop()
-
+    
 # --- Initialize authenticator ---
 authenticator = stauth.Authenticate(
     config["credentials"],
@@ -24,7 +29,6 @@ authenticator = stauth.Authenticate(
     config["cookie"]["key"],
     config["cookie"]["expiry_days"]
 )
-
 # --- LOGIN FORM ---
 authenticator.login(location="main")
 
