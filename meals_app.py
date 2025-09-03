@@ -8,8 +8,7 @@ import toml
 
 # --- Load configuration from Streamlit TOML secrets ---
 try:
-    config_str = st.secrets.toml  # Streamlit provides the full TOML as a string
-    config = toml.loads(config_str)
+    config = st.secrets
 except Exception as e:
     st.error(f"Failed to load configuration from secrets: {e}")
     st.stop()
