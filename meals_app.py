@@ -4,18 +4,14 @@ import os
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
+import toml
 
-# --- Load configuration from Streamlit secrets ---
+# --- Load configuration from Streamlit TOML secrets ---
 try:
-    # Convert TOML secrets to YAML and parse
-    config = yaml.safe_load(st.secrets.to_yaml()['config'])
-except KeyError:
-    st.error(
-        "Configuration not found. "
-        "Please set your secrets in Streamlit Cloud or provide a local config.yaml."
-    )
+    config_str = st.secrets.toml  # Streamlit provides the full TOML as a string
+    config = toml.loads(config_str)
+except Exception as e:
+    st.error(f"Failed to load configuration from secrets: {e}")
     st.stop()
 
 # --- Initialize authenticator ---
@@ -30,7 +26,7 @@ authenticator = stauth.Authenticate(
 authenticator.login(location='main')
 
 # --- LOGIN OUTCOME ---
-if st.session_state["authentication_status"]:
+if st.session_state.get("authentication_status"):
     # ✅ Logged in successfully
     username = st.session_state["username"]
     name = st.session_state["name"]
@@ -166,9 +162,9 @@ if st.session_state["authentication_status"]:
                 st.success("Changes saved!")
 
 # --- WRONG PASSWORD ---
-elif st.session_state["authentication_status"] is False:
+elif st.session_state.get("authentication_status") is False:
     st.error("Username/password is incorrect")
 
 # --- NO LOGIN YET ---
-elif st.session_state["authentication_status"] is None:
+elif st.session_state.get("authentication_status") is None:
     st.warning("Please enter your username and password")
