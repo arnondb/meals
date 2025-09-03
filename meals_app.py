@@ -7,7 +7,7 @@ import streamlit_authenticator as stauth
 
 # --- Load configuration safely from Streamlit secrets ---
 try:
-    # Create fully mutable copies
+    # Fully mutable copies
     credentials = {k: dict(v) for k, v in st.secrets["credentials"]["usernames"].items()}
     cookie = dict(st.secrets["cookie"])
     preauthorized = list(st.secrets.get("preauthorized", []))
@@ -21,7 +21,7 @@ try:
 except Exception as e:
     st.error(f"Failed to load configuration from secrets: {e}")
     st.stop()
-    
+
 # --- Initialize authenticator ---
 authenticator = stauth.Authenticate(
     config["credentials"],
@@ -29,6 +29,7 @@ authenticator = stauth.Authenticate(
     config["cookie"]["key"],
     config["cookie"]["expiry_days"]
 )
+
 # --- LOGIN FORM ---
 authenticator.login(location="main")
 
@@ -94,7 +95,11 @@ if st.session_state.get("authentication_status"):
 
         with st.form(key="add_form"):
             date = st.text_input("Enter date (DD-MM-YY)")
-            time = st.time_input("Enter time (HH:MM)")
+            # --- Fixed time input ---
+            time = st.time_input(
+                "Enter time",
+                value=datetime.datetime.now().time()  # default current time
+            )
 
             if st.session_state.meal_type == "Prepared":
                 meal = st.selectbox("Select Prepared Meal", prepared_meals, key="prepared_meal")
