@@ -4,9 +4,8 @@ import os
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
-import toml
 
-# --- Load configuration from Streamlit TOML secrets ---
+# --- Load configuration from Streamlit secrets ---
 try:
     config = st.secrets
 except Exception as e:
@@ -26,7 +25,6 @@ authenticator.login(location='main')
 
 # --- LOGIN OUTCOME ---
 if st.session_state.get("authentication_status"):
-    # ✅ Logged in successfully
     username = st.session_state["username"]
     name = st.session_state["name"]
 
