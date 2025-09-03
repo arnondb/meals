@@ -7,16 +7,16 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-# --- Load configuration for authentication ---
-if os.path.exists('config.yaml'):
-    with open('config.yaml', 'r') as file:
-        config = yaml.load(file, Loader=SafeLoader)
-else:
-    try:
-        config = yaml.load(st.secrets['config'], Loader=SafeLoader)
-    except KeyError:
-        st.error("Configuration not found. Please ensure config.yaml exists locally or secrets are set in Streamlit Cloud.")
-        st.stop()
+# --- Load configuration from Streamlit secrets ---
+try:
+    # Convert TOML secrets to YAML and parse
+    config = yaml.safe_load(st.secrets.to_yaml()['config'])
+except KeyError:
+    st.error(
+        "Configuration not found. "
+        "Please set your secrets in Streamlit Cloud or provide a local config.yaml."
+    )
+    st.stop()
 
 # --- Initialize authenticator ---
 authenticator = stauth.Authenticate(
