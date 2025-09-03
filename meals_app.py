@@ -1,19 +1,17 @@
 import datetime
 import json
 import os
-import copy
 import pandas as pd
 import streamlit as st
 import streamlit_authenticator as stauth
 
-# --- Load configuration from Streamlit secrets ---
+# --- Load configuration safely from Streamlit secrets ---
 try:
-    config = st.secrets
-    # Deep copy credentials (nested dict) to make it mutable
-    mutable_config = {
-        "credentials": copy.deepcopy(config["credentials"]),
-        "cookie": dict(config["cookie"]),
-        "preauthorized": list(config.get("preauthorized", []))
+    # Only copy the nested dictionaries/lists needed, making them mutable
+    config = {
+        "credentials": dict(st.secrets["credentials"]),
+        "cookie": dict(st.secrets["cookie"]),
+        "preauthorized": list(st.secrets.get("preauthorized", []))
     }
 except Exception as e:
     st.error(f"Failed to load configuration from secrets: {e}")
@@ -21,10 +19,10 @@ except Exception as e:
 
 # --- Initialize authenticator ---
 authenticator = stauth.Authenticate(
-    mutable_config["credentials"],
-    mutable_config["cookie"]["name"],
-    mutable_config["cookie"]["key"],
-    mutable_config["cookie"]["expiry_days"]
+    config["credentials"],
+    config["cookie"]["name"],
+    config["cookie"]["key"],
+    config["cookie"]["expiry_days"]
 )
 
 # --- LOGIN FORM ---
@@ -86,7 +84,9 @@ if st.session_state.get("authentication_status"):
         if "meal_type" not in st.session_state:
             st.session_state.meal_type = "Prepared"
 
-        st.session_state.meal_type = st.selectbox("Meal Type", ["Prepared", "Other"], key="meal_type_select")
+        st.session_state.meal_type = st.selectbox(
+            "Meal Type", ["Prepared", "Other"], key="meal_type_select"
+        )
 
         with st.form(key="add_form"):
             date = st.text_input("Enter date (DD-MM-YY)")
