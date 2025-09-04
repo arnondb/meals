@@ -1,4 +1,7 @@
-streamlit-authenticator>=0.4.2
 streamlit
+streamlit-authenticator
+PyYAML
 pandas
-pyyaml
+supabase
+bcrypt
+
